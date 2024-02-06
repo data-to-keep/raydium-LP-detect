@@ -1,12 +1,9 @@
 const bs58 = require("bs58");
-const BN = require("bn.js");
-const BigNumber = require("bignumber.js");
 require("dotenv").config();
 const {
     clusterApiUrl,
     Connection,
     PublicKey,
-    VersionedTransaction,
     Keypair
 } = require("@solana/web3.js");
 const {
@@ -14,7 +11,6 @@ const {
     getOrCreateAssociatedTokenAccount,
 } = require("@solana/spl-token");
 const {
-    MarketV2,
     Token,
     TokenAmount,
     Liquidity,
@@ -22,8 +18,6 @@ const {
     MAINNET_PROGRAM_ID,
     DEVNET_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
-    SPL_ACCOUNT_LAYOUT,
-    RAYDIUM_MAINNET,
     TxVersion,
     buildSimpleTransaction
 } = require("@raydium-io/raydium-sdk");
@@ -37,6 +31,7 @@ const {
     createToken
 } =require("./createToken");
 
+/* variables */
 const DEVNET_MODE = process.env.DEVNET_MODE === "true";
 const PROGRAMIDS = DEVNET_MODE ? DEVNET_PROGRAM_ID : MAINNET_PROGRAM_ID;
 const addLookupTableInfo = DEVNET_MODE ? undefined : LOOKUP_TABLE_CACHE;
@@ -52,6 +47,8 @@ let poolKeys;
 console.log("Payer:", payer.publicKey.toBase58());
 console.log("Mode:", DEVNET_MODE ? "devnet" : "mainnet");
 
+
+/* functions definition */
 const tradingInit = async () => {
     console.log("LP Initializing... ");
     
@@ -99,32 +96,32 @@ const tradingSOL = async () => {
         const amountIn = new TokenAmount(lpToken, tokenAccount.amount);
         console.log("========= amountIn : ", amountIn);
 
-        // const { innerTransactions } = await Liquidity.makeRemoveLiquidityInstructionSimple({
-        //     connection,
-        //     poolKeys,
-        //     userKeys: {
-        //         owner: payer.publicKey,
-        //         payer: payer.publicKey,
-        //         tokenAccounts: walletTokenAccounts,
-        //     },
-        //     amountIn: amountIn,
-        //     makeTxVersion,
-        // });
-
-        const transactions = await buildSimpleTransaction({
-            connection,
-            makeTxVersion,
-            payer: payer.publicKey,
-            innerTransactions,
-            addLookupTableInfo,
-        });
-
-        await sendAndConfirmTransactions(connection, payer, transactions);
+        let innerTransactions;
+        if (DEVNET_MODE === false) {
+            innerTransactions = await Liquidity.makeRemoveLiquidityInstructionSimple({
+                connection,
+                poolKeys,
+                userKeys: {
+                    owner: payer.publicKey,
+                    payer: payer.publicKey,
+                    tokenAccounts: walletTokenAccounts,
+                },
+                amountIn: amountIn,
+                makeTxVersion,
+            });
+            const transactions = await buildSimpleTransaction({
+                connection,
+                makeTxVersion,
+                payer: payer.publicKey,
+                innerTransactions,
+                addLookupTableInfo,
+            });
+            await sendAndConfirmTransactions(connection, payer, transactions);
+        }
         console.log("======== Your LP was removed from Raydium.");
         clearInterval(timer);
     }
 }
-
 
 const main = (stage) => {
     switch (stage) {

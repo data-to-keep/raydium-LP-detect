@@ -1,11 +1,8 @@
-const bs58 = require("bs58");
 const {
-    Connection,
     Keypair,
     PublicKey,
     SystemProgram,
     Transaction,
-    clusterApiUrl,
     sendAndConfirmTransaction,
 } = require("@solana/web3.js");
 const {
@@ -21,10 +18,9 @@ const {
     createCreateMetadataAccountV3Instruction,
     PROGRAM_ID,
 } = require("@metaplex-foundation/mpl-token-metadata");
-
 require("dotenv").config();
 
-
+/* function definition */
 exports.createToken = async (connection, payer, decimals, amount) => {
     console.log("Creating token...");
     const lamports = await getMinimumBalanceForRentExemptMint(connection);
