@@ -64,7 +64,7 @@ exports.createToken = async (connection, payer, decimals, amount) => {
     console.log(`Signature: ${signature}  Mint: ${mintKeypair.publicKey.toBase58()}`);
 }
 
-exports.createMetaData = async (connection, mintAddress, name, symbol) => {
+exports.createMetaData = async (connection, payer, mintAddress, name, symbol) => {
     console.log("Creating meta-data transactions...");
     const mint = new PublicKey(mintAddress);
     const [ metadataPDA ] = PublicKey.findProgramAddressSync(
