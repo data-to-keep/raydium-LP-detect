@@ -24,12 +24,8 @@ const {
 
 require("dotenv").config();
 
-const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
-const payer = Keypair.fromSecretKey(bs58.decode(process.env.PAYER_SECRET_KEY));
-console.log("Payer:", payer.publicKey.toBase58());
-
-export const createToken = async (/*name, symbol,*/ decimals, amount) => {
+exports.createToken = async (connection, payer, decimals, amount) => {
     console.log("Creating token...");
     const lamports = await getMinimumBalanceForRentExemptMint(connection);
     const mintKeypair = Keypair.generate();
@@ -68,9 +64,8 @@ export const createToken = async (/*name, symbol,*/ decimals, amount) => {
     console.log(`Signature: ${signature}  Mint: ${mintKeypair.publicKey.toBase58()}`);
 }
 
-const createMetaData = async (mintAddress, name, symbol) => {
+exports.createMetaData = async (connection, mintAddress, name, symbol) => {
     console.log("Creating meta-data transactions...");
-    // const metaplex = Metaplex.make(connection).use(keypairIdentity(payer));
     const mint = new PublicKey(mintAddress);
     const [ metadataPDA ] = PublicKey.findProgramAddressSync(
         [
@@ -117,7 +112,3 @@ const createMetaData = async (mintAddress, name, symbol) => {
 
 
 
-const createToken = async (name, symbol, decimal, totalSupply) {
-    createToken(6, 1000000000);
-    createMetaData(process.env.TOKEN_ADDRESS, "TTTT-TOKEN", "TTTT");
-}
