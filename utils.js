@@ -11,11 +11,11 @@ const {
 } = require("@raydium-io/raydium-sdk");
 
 
-export const xWeiAmount = (amount, decimals) => {
+exports.xWeiAmount = (amount, decimals) => {
     return new BN(new BigNumber(amount.toString() + "e" + decimals.toString()).toFixed(0));
 };
 
-export const getWalletTokenAccount = async (connection, wallet) => {
+exports.getWalletTokenAccount = async (connection, wallet) => {
     const walletTokenAccount = await connection.getTokenAccountsByOwner(wallet, {
         programId: TOKEN_PROGRAM_ID,
     });
@@ -26,7 +26,7 @@ export const getWalletTokenAccount = async (connection, wallet) => {
     }));
 };
 
-export const sendAndConfirmTransactions = async (connection, payer, transactions) => {
+exports.sendAndConfirmTransactions = async (connection, payer, transactions) => {
     for (const tx of transactions) {
         let signature;
         if (tx instanceof VersionedTransaction) {

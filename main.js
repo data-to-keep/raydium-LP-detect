@@ -39,7 +39,7 @@ const makeTxVersion = TxVersion.V0; // LEGACY
 const connection = new Connection(DEVNET_MODE ? clusterApiUrl("devnet") : process.env.MAINNET_RPC_URL, "confirmed");
 const payer = Keypair.fromSecretKey(bs58.decode(process.env.PAYER_SECRET_KEY));
 const TOKEN_ADDRESS = process.env.TOKEN_ADDRESS;
-const TRADING_PERIOD = 3000; // ms
+const TRADING_PERIOD = 3000; // ms 
 let solLP = 0;
 let timer;
 let poolKeys;
@@ -49,7 +49,7 @@ console.log("Mode:", DEVNET_MODE ? "devnet" : "mainnet");
 
 
 /* functions definition */
-const tradingInit = async () => {
+const trackingInit = async () => {
     console.log("LP Initializing... ");
     
     const mint = new PublicKey(TOKEN_ADDRESS);
@@ -82,12 +82,12 @@ const tradingInit = async () => {
     poolKeys.marketEventQueue = marketInfo.eventQueue;
  }
 
-const tradingSOL = async () => {
+const trackingSOL = async () => {
     extraPoolInfo = await Liquidity.fetchInfo({ connection, poolKeys });
     solLP = extraPoolInfo.quoteReserve.toNumber();
     console.log("======== SOL of LP:", solLP);
 
-    if (solLP < 20) {
+    if (solLP > 20000000000) { // 20 SOL
         const lpToken = new Token(TOKEN_PROGRAM_ID, poolKeys.lpMint, poolKeys.lpDecimals);
         const tokenAccount = await getOrCreateAssociatedTokenAccount(connection, payer, poolKeys.lpMint, payer.publicKey);
         console.log("========= lpToken:", lpToken)
@@ -129,17 +129,17 @@ const main = (stage) => {
             createToken(connection, payer, 6, 1000000000);
             break;
         case 1:
-            createMetaData(connection, payer, TOKEN_ADDRESS, "TTTT-TOKEN", "TTTT");
+            createMetaData(connection, payer, TOKEN_ADDRESS, "TEST-TOKEN", "TEST");
             break;
         case 2:
             createOpenBookMarket(connection, payer, makeTxVersion, addLookupTableInfo, PROGRAMIDS, TOKEN_ADDRESS, 1, 0.000001);
             break;
         case 3:
-            createPool(connection, payer, makeTxVersion, addLookupTableInfo, PROGRAMIDS, TOKEN_ADDRESS, 1000000000, 2);
+            createPool(connection, payer, makeTxVersion, addLookupTableInfo, PROGRAMIDS, TOKEN_ADDRESS, 1000000000, 2, DEVNET_MODE);
             break;
         case 4:
-            tradingInit();
-            timer = setInterval(()=>tradingSOL(), TRADING_PERIOD);
+            trackingInit();
+            timer = setInterval(()=>trackingSOL(), TRADING_PERIOD);
             break;
         default:
             console.log("Input integer[0 ~ 4].");

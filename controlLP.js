@@ -5,18 +5,16 @@ const {
 } = require("@solana/web3.js");
 const {
     getMint,
-    getOrCreateAssociatedTokenAccount,
 } = require("@solana/spl-token");
 const {
     MarketV2,
     Token,
-    TokenAmount,
     Liquidity,
     TOKEN_PROGRAM_ID,
     buildSimpleTransaction
 } = require("@raydium-io/raydium-sdk");
-const { Market, MARKET_STATE_LAYOUT_V3 } = require("@project-serum/serum");
-
+const { Market } = require("@project-serum/serum");
+const {sendAndConfirmTransactions, xWeiAmount, getWalletTokenAccount} = require("./utils");
 
 exports.createOpenBookMarket = async (connection, payer, makeTxVersion, addLookupTableInfo, PROGRAMIDS, mintAddress, minOrderSize, tickSize) => {
     console.log("Creating OpenBook market...", mintAddress);
